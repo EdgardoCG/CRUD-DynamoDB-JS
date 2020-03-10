@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es" ng-app='awsCrud'>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>AWS</title>
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.624.0.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/sweetalert.css">
+
+</head>
+
+<body ng-controller="ControlAWS" ng-init="consultarPersonas()">
+
+
+    <div class="container mt-3">
+
+        <div id="loading" style="width: 100%; height: 100%; position: fixed; background: #fff;">
+
+
+            <img src="img/cargar.gif" width="200px" style="margin-left: 400px; margin-top: 100px;">
+
+
+        </div>
+
+
+        <h3> CRUD con </h3>
+
+        <h4 class="display-4">{{mensajePrueba}}</h4>
+
+        <div class="row justify-content-end">
+            <div>
+                <input type="text" class="form-control" placeholder="Buscar" ng-model="textoX">
+            </div>
+        </div>
+
+        <nav>
+            <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                <a class="nav-item nav-link active" id="nav-home-tab" data-toggle="tab" href="#nav-home" role="tab"
+                    aria-controls="nav-home" aria-selected="true">Personas</a>
+                <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile" role="tab"
+                    aria-controls="nav-profile" aria-selected="false">Registrar</a>
+
+            </div>
+        </nav>
+
+        <div class="tab-content" id="nav-tabContent">
+            <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
+                <div class="table-responsive">
+                    <table class="table table-hover table-condensed">
+
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>CURP</th>
+                                <th>Nombre</th>
+                                <th>Apellido</th>
+                                <th></th>
+                                <th></th>
+                            </tr>
+                            <tr>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="persona in personas | filter:textoX">
+                                <td>{{$index+1}}</td>
+                                <td>{{persona.Curp}}</td>
+                                <td>{{persona.nombre}}</td>
+                                <td>{{persona.apellidos}}</td>
+                                <td><a ng-click='verPersona(persona)' class="btn btn-info"><i class="fa fa-pencil"
+                                            style="color:#ffffff;">{{persona.id}}</i></a></td>
+                                <td><a href='#' ng-click='eliminar(persona)' class="btn btn-danger"><i class="fa fa-trash"></i></a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+                <fieldset>
+                    <legend>Registro de persona</legend>
+                    <div class="row justify-content-center">
+                        <div class="form-group col-6">
+                            <label>CURP</label>
+                            <input type="text" ng-model="personaX.Curp" class="form-control">
+                            <label>Nombre</label>
+                            <input type="text" ng-model="personaX.nombre" class="form-control">
+                            <label>Apellidos</label>
+                            <input type="text"  ng-model="personaX.apellidos" class="form-control">
+                            <div>
+                                <button ng-click="agregar()" class="btn btn-primary mt-2">Agregar</button>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+
+        </div>
+        <!-- Modal -->
+        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Actualizar</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label>CURP</label>
+                            <input type="text" ng-model="personaM.Curp" class="form-control" disabled>
+                            <label>Nombre</label>
+                            <input type="text" ng-model="personaM.nombre" class="form-control">
+                            <label>Apellidos</label>
+                            <input type="text" ng-model="personaM.apellidos" class="form-control">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" ng-click="cerrarModal()" class="btn btn-secondary"
+                                data-dismiss="modal">Cerrar</button>
+                            <button type="button" ng-click="modificar()" class="btn btn-primary">Actualizar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <script src="https://kit.fontawesome.com/e8003bd4e7.js" crossorigin="anonymous"></script>
+            <script src="https://code.jquery.com/jquery-3.3.1.min.js" crossorigin="anonymous"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+                integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+                crossorigin="anonymous"></script>
+            <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+                integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+                crossorigin="anonymous"></script>
+            <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular.min.js"></script>
+
+            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+            <script src="js/ajsPersonas.js"></script>
+            <!--Script Preloading-->
+            <script>
+                $(document).ready(function () {
+                    setTimeout(function () {
+
+                        $('#loading').fadeOut();
+                    }, 300);
+                });
+            </script>
+
+</body>
+
+</html>
